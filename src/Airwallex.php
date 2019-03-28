@@ -93,23 +93,49 @@ class Airwallex {
 	}
 
 	/**
-	 * [token description]
-	 * @param  string $token [description]
-	 * @return [type]        [description]
+	 * 设置token
+	 * @access public
+	 * @method HEAD
+	 * @param  string $token required
+	 * @return object        current object
 	 */
-	public function set_token( $token ) {
-		if ( '' == $token ) {
-			return false;
+	public function set_token( $token = '' ) {
+		try {
+			if ( '' === $token ) {
+				throw new \Exception('token is required', 1);
+			}
+			$this->header[] =  "Authorization:Bearer " . $token;
+			return $this;
+		} catch ( \Exception $e ) {
+			return $this->return(0,$e->getMessage());
 		}
-		$this->header[] =  "Authorization:Bearer " . $token;
-		return $this;
 	}
 
 	/**
-	 * [balances_current 获取当前账户余额]
-	 * @method  GET
-	 * @param  array  $params [description]
-	 * @return [type]         [description]
+	 * 设置作为关联账户，后续操作将以此为主体
+	 * @access public
+	 * @method HEAD
+	 * @param  string $account_id 账号ID required
+	 * @return object             current object
+	 */
+	public function as_connected_account( $account_id = '' ) {
+		try {
+			if ( '' === $account_id ) {
+				throw new \Exception('Connected account id is required', 1);
+			}
+			$this->header[] =  "x-on-behalf-of:" . $account_id;
+			return $this;
+		} catch ( \Exception $e ) {
+			return $this->return(0,$e->getMessage());
+		}
+	}
+
+	/**
+	 * 获取当前账户余额
+	 * @access public
+	 * @method GET
+	 * @param  array  $params 查询参数，optional
+	 * @return json           [description]
 	 */
 	public function balances_current ( $params = [] ) {
 		$uri    =    $this->api_uri . 'balances/current';
@@ -119,12 +145,12 @@ class Airwallex {
 	/**
 	 * [balances_history 获取账户余额历史记录]
 	 *  @param  $params array 支持的键值和含义如下
-	 *          currency       可选 string  三位字符货币编码,如USD
-     *          from_post_at   可选 string  开始时间，ISO8601 format，如2017-04-01T03:52:34+0000
-     *          page_num       可选 integer 页数，0-10000，如3
-     *          page_size      可选 integer 每页条数，0-2000，默认100
-     *          request_id     可选 string  request_id from clients for the transaction
-     *          to_post_at     可选 string  结束时间，ISO8601 format，如2017-04-01T03:52:34+0000
+	 *              currency       可选 string  三位字符货币编码,如USD
+     *              from_post_at   可选 string  开始时间，ISO8601 format，如2017-04-01T03:52:34+0000
+     *              page_num       可选 integer 页数，0-10000，如3
+     *              page_size      可选 integer 每页条数，0-2000，默认100
+     *              request_id     可选 string  request_id from clients for the transaction
+     *              to_post_at     可选 string  结束时间，ISO8601 format，如2017-04-01T03:52:34+0000
 	 * @param  array  $params [description]
 	 * @return [type]         [description]
 	 */
